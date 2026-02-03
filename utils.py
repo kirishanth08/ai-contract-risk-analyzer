@@ -26,16 +26,17 @@ client = OpenAI(api_key=api_key) if api_key else None
 # ---------- AI ANALYSIS (WITH DEMO FALLBACK) ----------
 
 def analyze_contract_with_ai(contract_text):
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": f"Analyze this contract:\n{contract_text}"}],
-            temperature=0.2,
-        )
-        return response.choices[0].message.content
-
-    except Exception:
-        return """
+    if client:
+        try:
+            response = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": f"Analyze this contract:\n{contract_text}"}],
+                temperature=0.2,
+            )
+            return response.choices[0].message.content
+        except Exception:
+        pass
+    return """
 ### 📄 Contract Type
 Vendor Service Agreement
 
@@ -74,6 +75,7 @@ def create_pdf_report(text):
     file_path = "contract_analysis_report.pdf"
     pdf.output(file_path)
     return file_path
+
 
 
 
