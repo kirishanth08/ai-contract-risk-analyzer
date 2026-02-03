@@ -1,8 +1,5 @@
 import PyPDF2
 import docx
-import os
-from dotenv import load_dotenv
-from openai import OpenAI
 from fpdf import FPDF
 import re
 
@@ -20,44 +17,71 @@ def extract_text_from_docx(file):
     document = docx.Document(file)
     return "\n".join([para.text for para in document.paragraphs])
 
-# ---------- AI SETUP ----------
-load_dotenv()
-api_key = os.getenv("OPENAI_API_KEY")
-client = OpenAI(api_key=api_key) if api_key else None
-
-# ---------- AI ANALYSIS ----------
+# ---------- DEMO AI ANALYSIS WITH RISK LOGIC ----------
 
 def analyze_contract_with_ai(contract_text):
-    if client:
-        try:
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{"role": "user", "content": f"Analyze this contract:\n{contract_text}"}],
-                temperature=0.2,
-            )
-            return response.choices[0].message.content
-        except Exception:
-            pass
+    text = contract_text.lower()
 
-    # Demo fallback
-    return """
+    high_risk_keywords = [
+        "unlimited liability",
+        "non-compete",
+        "penalty",
+        "indemnify",
+        "automatic renewal",
+        "exclusive property",
+        "terminate immediately"
+    ]
+
+    medium_risk_keywords = [
+        "late fee",
+        "arbitration",
+        "liability is limited",
+        "termination notice",
+        "service level"
+    ]
+
+    high_score = sum(word in text for word in high_risk_keywords)
+    medium_score = sum(word in text for word in medium_risk_keywords)
+
+    if high_score >= 2:
+        risk_level = "High"
+        risky_clauses = """
+- Unlimited or heavy liability exposure  
+- Strict non-compete or exclusivity  
+- Heavy penalties or indemnification  
+- One-sided termination rights  
+"""
+    elif medium_score >= 2:
+        risk_level = "Medium"
+        risky_clauses = """
+- Moderate late payment penalties  
+- Arbitration-based dispute resolution  
+- Limited liability clauses  
+- Notice-based termination conditions  
+"""
+    else:
+        risk_level = "Low"
+        risky_clauses = """
+- Balanced termination rights  
+- No severe penalties  
+- Limited and fair liability  
+- Mutual obligations  
+"""
+
+    return f"""
 ### 📄 Contract Type
-Vendor Service Agreement
+Service / Vendor Agreement
 
 ### 📝 Summary
-This agreement defines services, payment terms, confidentiality, and legal responsibilities between a client and a vendor.
+This contract outlines services, responsibilities, payment terms, and legal protections between two business parties.
 
 ### ⚠ Risky Clauses
-- Late payment penalty of 5% per month
-- Non-compete restriction for 2 years
-- Vendor has limited termination rights
-- Unlimited liability for data breaches
+{risky_clauses}
 
-### 🎯 Overall Risk Score: High
-Due to strict penalties, non-compete, and liability exposure.
+### 🎯 Overall Risk Score: {risk_level}
 
 ### 💡 Suggestions
-Negotiate liability caps, reduce non-compete duration, and balance termination rights.
+Review highlighted clauses and negotiate terms to balance risk and responsibility.
 """
 
 # ---------- PDF REPORT ----------
