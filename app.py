@@ -1,5 +1,5 @@
 import streamlit as st
-from utils import extract_text_from_pdf, extract_text_from_docx, analyze_contract_with_ai,  create_pdf_report
+from utils import extract_text_from_pdf, extract_text_from_docx, analyze_contract_with_ai, create_pdf_report
 
 st.set_page_config(page_title="AI Contract Risk Analyzer")
 
@@ -23,12 +23,13 @@ if uploaded_file:
     st.text_area("Contract Content", contract_text, height=200)
 
     if st.button("🔍 Analyze Contract with AI"):
-        with st.spinner("AI is analyzing the contract..."):
+        with st.spinner("Analyzing contract..."):
             analysis = analyze_contract_with_ai(contract_text)
+
             st.subheader("🤖 AI Analysis Result")
             st.markdown(analysis)
 
-# Risk Score Color Indicator
+            # Risk color indicator
             if "High" in analysis:
                 st.error("🔴 Overall Risk Level: HIGH")
             elif "Medium" in analysis:
@@ -36,8 +37,7 @@ if uploaded_file:
             elif "Low" in analysis:
                 st.success("🟢 Overall Risk Level: LOW")
 
-
-                        # 📄 Downloadable PDF Report
+            # PDF download
             pdf_path = create_pdf_report(analysis)
             with open(pdf_path, "rb") as f:
                 st.download_button(
@@ -46,5 +46,3 @@ if uploaded_file:
                     file_name="contract_analysis_report.pdf",
                     mime="application/pdf"
                 )
-
-
