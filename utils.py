@@ -20,7 +20,8 @@ def extract_text_from_docx(file):
 
 # ---------- AI SETUP ----------
 load_dotenv()
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=api_key) if api_key else None
 
 # ---------- AI ANALYSIS (WITH DEMO FALLBACK) ----------
 
@@ -73,5 +74,6 @@ def create_pdf_report(text):
     file_path = "contract_analysis_report.pdf"
     pdf.output(file_path)
     return file_path
+
 
 
