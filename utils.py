@@ -3,6 +3,8 @@ import docx
 import os
 from dotenv import load_dotenv
 from openai import OpenAI
+from fpdf import FPDF
+import re
 
 # ---------- FILE TEXT EXTRACTION ----------
 
@@ -23,7 +25,7 @@ load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key) if api_key else None
 
-# ---------- AI ANALYSIS (WITH DEMO FALLBACK) ----------
+# ---------- AI ANALYSIS ----------
 
 def analyze_contract_with_ai(contract_text):
     if client:
@@ -35,7 +37,9 @@ def analyze_contract_with_ai(contract_text):
             )
             return response.choices[0].message.content
         except Exception:
-        pass
+            pass
+
+    # Demo fallback
     return """
 ### 📄 Contract Type
 Vendor Service Agreement
@@ -44,22 +48,21 @@ Vendor Service Agreement
 This agreement defines services, payment terms, confidentiality, and legal responsibilities between a client and a vendor.
 
 ### ⚠ Risky Clauses
-- Late payment penalty of 5% per month  
-- Non-compete restriction for 2 years  
-- Vendor has limited termination rights  
-- Unlimited liability for data breaches  
+- Late payment penalty of 5% per month
+- Non-compete restriction for 2 years
+- Vendor has limited termination rights
+- Unlimited liability for data breaches
 
-### 🎯 Overall Risk Score: **High**
+### 🎯 Overall Risk Score: High
 Due to strict penalties, non-compete, and liability exposure.
 
 ### 💡 Suggestions
 Negotiate liability caps, reduce non-compete duration, and balance termination rights.
 """
-from fpdf import FPDF
-import re
+
+# ---------- PDF REPORT ----------
 
 def clean_text_for_pdf(text):
-    # Remove emojis and non-latin characters
     return re.sub(r'[^\x00-\xFF]+', '', text)
 
 def create_pdf_report(text):
@@ -75,7 +78,3 @@ def create_pdf_report(text):
     file_path = "contract_analysis_report.pdf"
     pdf.output(file_path)
     return file_path
-
-
-
-
