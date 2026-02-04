@@ -1,7 +1,7 @@
 import streamlit as st
 from utils import extract_text_from_pdf, extract_text_from_docx, analyze_contract_with_ai, create_pdf_report
 
-st.set_page_config(page_title="AI Contract Risk Analyzer")
+st.set_page_config(page_title="AI Contract Risk Analyzer", layout="wide")
 
 st.title("📄 AI Contract Analysis & Risk Assessment Bot")
 st.write("Upload a contract to analyze risks and get a simple explanation.")
@@ -12,6 +12,7 @@ if uploaded_file:
     st.success("File uploaded successfully!")
     st.write("Filename:", uploaded_file.name)
 
+    # Extract text
     if uploaded_file.name.endswith(".pdf"):
         contract_text = extract_text_from_pdf(uploaded_file)
     elif uploaded_file.name.endswith(".docx"):
@@ -20,10 +21,11 @@ if uploaded_file:
         contract_text = str(uploaded_file.read(), "utf-8")
 
     st.subheader("📜 Extracted Contract Text")
-    st.text_area("Contract Content", contract_text, height=200)
+    st.text_area("Contract Content", contract_text, height=250)
 
-    if st.button("🔍 Analyze Contract with AI"):
-        with st.spinner("AI is analyzing the contract..."):
+    if st.button("🔍 Analyze Contract"):
+        with st.spinner("Analyzing contract..."):
+
             analysis = analyze_contract_with_ai(contract_text)
 
             st.subheader("🤖 AI Analysis Result")
@@ -34,16 +36,16 @@ if uploaded_file:
                 st.error("🔴 Overall Risk Level: HIGH")
             elif "Medium" in analysis:
                 st.warning("🟡 Overall Risk Level: MEDIUM")
-            elif "Low" in analysis:
+            else:
                 st.success("🟢 Overall Risk Level: LOW")
 
-            # Generate PDF Report
+            # PDF Report
             pdf_path = create_pdf_report(analysis)
-
             with open(pdf_path, "rb") as f:
                 st.download_button(
                     "📥 Download Risk Report (PDF)",
                     f,
                     file_name="contract_risk_report.pdf"
                 )
+
 
