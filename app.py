@@ -22,14 +22,14 @@ if uploaded_file:
     st.subheader("📜 Extracted Contract Text")
     st.text_area("Contract Content", contract_text, height=200)
 
-    if st.button("🔍 Analyze Contract with AI"):
+    if st.button("🔍 Analyze Contract"):
         with st.spinner("Analyzing contract..."):
             analysis = analyze_contract_with_ai(contract_text)
 
-            st.subheader("🤖 AI Analysis Result")
+            st.subheader("🤖 Contract Risk Analysis")
             st.markdown(analysis)
 
-            # Risk color indicator
+            # Risk indicator
             if "High" in analysis:
                 st.error("🔴 Overall Risk Level: HIGH")
             elif "Medium" in analysis:
@@ -37,7 +37,7 @@ if uploaded_file:
             elif "Low" in analysis:
                 st.success("🟢 Overall Risk Level: LOW")
 
-            # PDF download
+            # PDF Report
             pdf_path = create_pdf_report(analysis)
             with open(pdf_path, "rb") as f:
                 st.download_button(
