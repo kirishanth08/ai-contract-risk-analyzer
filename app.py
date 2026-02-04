@@ -46,3 +46,4 @@ if uploaded_file:
                     f,
                     file_name="contract_risk_report.pdf"
                 )
+
